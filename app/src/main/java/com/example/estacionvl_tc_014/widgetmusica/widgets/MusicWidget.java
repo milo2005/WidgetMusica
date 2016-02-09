@@ -1,36 +1,66 @@
 package com.example.estacionvl_tc_014.widgetmusica.widgets;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.Intent;
 import android.widget.RemoteViews;
 
 import com.example.estacionvl_tc_014.widgetmusica.R;
+import com.example.estacionvl_tc_014.widgetmusica.services.MusicService;
 
 /**
  * Implementation of App Widget functionality.
  */
 public class MusicWidget extends AppWidgetProvider {
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                int appWidgetId) {
-
-        CharSequence widgetText = context.getString(R.string.appwidget_text);
-        // Construct the RemoteViews object
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.music_widget);
-        //views.setTextViewText(R.id.appwidget_text, widgetText);
-
-        // Instruct the widget manager to update the widget
-        appWidgetManager.updateAppWidget(appWidgetId, views);
-    }
-
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        // There may be multiple widgets active, so update all of them
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
         }
     }
+
+    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
+                                int appWidgetId) {
+
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.music_widget);
+        //Proceso Play
+        Intent play = new Intent(context, MusicService.class);
+        play.setAction(MusicService.ACTION_PLAY);
+
+        PendingIntent pendingPlay = PendingIntent.getService(context,101,play
+                , PendingIntent.FLAG_UPDATE_CURRENT);
+
+        //Proceso Pause
+        Intent pause = new Intent(context, MusicService.class);
+        pause.setAction(MusicService.ACTION_PAUSE);
+
+        PendingIntent pendingPause = PendingIntent.getService(context,102,pause
+                , PendingIntent.FLAG_UPDATE_CURRENT);
+
+        //Proceso Stop
+        Intent stop = new Intent(context, MusicService.class);
+        stop.setAction(MusicService.ACTION_STOP);
+
+        PendingIntent pendingStop = PendingIntent.getService(context,103,stop
+                , PendingIntent.FLAG_UPDATE_CURRENT);
+
+        views.setOnClickPendingIntent(R.id.btn_play, pendingPlay);
+        views.setOnClickPendingIntent(R.id.btn_pause, pendingPause);
+        views.setOnClickPendingIntent(R.id.btn_stop, pendingStop);
+
+
+
+
+
+
+
+        appWidgetManager.updateAppWidget(appWidgetId, views);
+    }
+
+
 
     @Override
     public void onEnabled(Context context) {
